@@ -2,7 +2,6 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import datetime
-import telegramDispatcher as telegramSend
 
 today = datetime.datetime.now().strftime("%d/%m/%Y")
 
@@ -10,13 +9,14 @@ today = datetime.datetime.now().strftime("%d/%m/%Y")
 # noinspection PyBroadException
 def generate_url():
     global today
-    return "https://www.drikpanchang.com/panchang/day-panchang.html?date=" + today + "&time-format=24hour&geoname-id=1277333"
+    return "https://www.drikpanchang.com/panchang/day-panchang.html?date=" + today + "&time-format=24hour&geoname-id=1248991"
 # geoname-id=1265863 for Krishnagiri
 # geoname-id=1277333 for Bengaluru
 
 
 # noinspection PyBroadException
 def scrape_panchangam(url):
+    # print(url)
     global today
     # Make a request
     page = requests.get(url)
@@ -57,7 +57,7 @@ def scrape_panchangam(url):
             normal_ULMD = normal_ULMD + list_of_names[i] + ": " + ULMD[start_pos:end_pos] + "\n"
         else:
             start_pos = ULMD.find(list_of_names[i]) + len(list_of_names[i]) + 3
-            end_pos = len(ULMD)
+            end_pos = ULMD.find(list_of_names[0])
             normal_ULMD = normal_ULMD + list_of_names[i] + ": " + ULMD[start_pos:end_pos] + "\n"
     panchangam[ULMD[:31]] = panchangam[""]
     del panchangam[""]
@@ -83,4 +83,18 @@ def scrape_panchangam(url):
 
 if __name__ == '__main__':
     scrape_panchangam(generate_url())
-    telegramSend.send_msg()
+
+    msg = ""
+    try:
+        with open("panchangam.json", "r") as jsonData:
+                panchangamJson = json.load(jsonData)
+    except:
+        print("Error reading \"panchangam.json\" file\n")
+        exit(-1)
+    else:
+        for i in panchangamJson:
+            if i.find("Udaya Lagna Muhurta"):
+                msg = msg + i + ":\n" + panchangamJson[i] + "\n"
+            else:
+                msg = msg + i + ": " + panchangamJson[i] + "\n"
+        print(msg)
