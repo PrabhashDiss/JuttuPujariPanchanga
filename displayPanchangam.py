@@ -15,7 +15,7 @@ def print_panchangam():
     panchangamJson = read_panchangam()
     msg = ""
     for i in panchangamJson:
-        if i.find("Udaya Lagna Muhurta"):
+        if i.find("Udaya Lagna Muhurta") != -1:
             msg = msg + i + ":\n" + panchangamJson[i] + "\n"
         else:
             msg = msg + i + ": " + panchangamJson[i] + "\n"
